@@ -11,6 +11,7 @@ import { MaterialExampleModule } from '../material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { SnsSubscriptionsComponent } from './components/sns-subscriptions/sns-subscriptions.component';
 import { SnsSubscriptionComponent } from './components/sns-subscription/sns-subscription.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,9 @@ import { SnsSubscriptionComponent } from './components/sns-subscription/sns-subs
     AppRoutingModule,
     BrowserAnimationsModule,
     MaterialExampleModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

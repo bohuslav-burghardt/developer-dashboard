@@ -7,14 +7,12 @@ import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sns.model.Subscription;
 import com.amazonaws.services.sns.model.Topic;
-import com.amazonaws.services.sns.model.UnsubscribeResult;
 import com.hackathon.developerdashboard.core.AwsUtils;
 import com.hackathon.developerdashboard.core.widget.sns.domain.ListSubscriptionResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.Protocol;
-import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicRequest;
+import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.UnsubscribeTopicRequest;
-import com.hackathon.developerdashboard.core.widget.sns.domain.UnsubscribeTopicResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -39,20 +37,17 @@ public class SnsService {
 
         Set<String> existingSubscriptionArns = listSubscriptionsWithPaging(amazonSNS, topicArn)
                 .stream()
-                .filter(subscription -> {
-                    return request.getProtocol().getAwsValue().equals(subscription.getProtocol()) &&
-                            request.getEndpoint().equals(subscription.getEndpoint());
-                })
+                .filter(subscription -> request.getProtocol().getAwsValue().equals(subscription.getProtocol()) &&
+                        request.getEndpoint().equals(subscription.getEndpoint()))
                 .map(Subscription::getSubscriptionArn)
                 .collect(Collectors.toSet());
 
         if (!existingSubscriptionArns.isEmpty()) {
-            SubscribeTopicResult result = new SubscribeTopicResult();
-            result.setRegion(request.getRegion());
-            result.setTopicArn(topicArn);
-            result.setSubscriptionArns(existingSubscriptionArns);
-            result.setWasAlreadySubscribed(true);
-            return result;
+            return new SubscribeTopicResult()
+                    .setRegion(request.getRegion())
+                    .setTopicArn(topicArn)
+                    .setSubscriptionArns(existingSubscriptionArns)
+                    .setWasAlreadySubscribed(true);
         }
 
         SubscribeRequest snsSubscribeRequest = new SubscribeRequest();
@@ -62,12 +57,11 @@ public class SnsService {
 
         SubscribeResult subscribe = amazonSNS.subscribe(snsSubscribeRequest);
 
-        SubscribeTopicResult result = new SubscribeTopicResult();
-        result.setRegion(request.getRegion());
-        result.setTopicArn(topicArn);
-        result.setSubscriptionArns(Collections.singleton(subscribe.getSubscriptionArn()));
-        result.setWasAlreadySubscribed(false);
-        return result;
+        return new SubscribeTopicResult()
+                .setRegion(request.getRegion())
+                .setTopicArn(topicArn)
+                .setSubscriptionArns(Collections.singleton(subscribe.getSubscriptionArn()))
+                .setWasAlreadySubscribed(false);
     }
 
     public void unsubscribe(UnsubscribeTopicRequest request) {
@@ -81,14 +75,13 @@ public class SnsService {
 
         List<ListSubscriptionResult.Subscription> subscriptions = listSubscriptionsWithPaging(amazonSNS, topicArn)
                 .stream()
-                .map(snsSubscription -> {
-                    ListSubscriptionResult.Subscription subscription = new ListSubscriptionResult.Subscription();
-                    subscription.setTopicArn(topicArn);
-                    subscription.setSubscriptionArn(snsSubscription.getSubscriptionArn());
-                subscription.setProtocol(Protocol.fromAwsValue(snsSubscription.getProtocol()));
-                    subscription.setEndpoint(snsSubscription.getEndpoint());
-                    return subscription;
-                })
+                .map(snsSubscription -> new ListSubscriptionResult.Subscription()
+                        .setTopicName(topicName)
+                        .setRegion(region)
+                        .setTopicArn(topicArn)
+                        .setSubscriptionArn(snsSubscription.getSubscriptionArn())
+                        .setProtocol(Protocol.fromAwsValue(snsSubscription.getProtocol()))
+                        .setEndpoint(snsSubscription.getEndpoint()))
                 .filter(subscription -> {
                     if (protocol != null && protocol != subscription.getProtocol()) {
                         return false;
@@ -100,9 +93,7 @@ public class SnsService {
                 })
                 .collect(Collectors.toList());
 
-        ListSubscriptionResult result = new ListSubscriptionResult();
-        result.setSubscriptions(subscriptions);
-        return result;
+        return new ListSubscriptionResult().setSubscriptions(subscriptions);
     }
 
     //~ Util functions
@@ -110,9 +101,11 @@ public class SnsService {
     private Topic getTopicByName(AmazonSNS sns, String topicName) {
         ListTopicsResult listTopicsResult = sns.listTopics();
 
-        List<Topic> topics = listTopicsResult.getTopics().stream().filter(topic -> {
-            return topic.getTopicArn().endsWith("-" + topicName);
-        }).collect(Collectors.toList());
+        List<Topic> topics = listTopicsResult
+                .getTopics()
+                .stream()
+                .filter(topic -> topic.getTopicArn().endsWith("-" + topicName))
+                .collect(Collectors.toList());
 
         if (topics.isEmpty()) {
             throw noTopicFound(topicName);

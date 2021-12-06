@@ -1,1 +1,94 @@
-<p>sns-subscriptions works!</p>
+<div>
+  <mat-card>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>region</mat-label>
+
+      <mat-select [(ngModel)]="subscribeTopicRequest.region">
+        <mat-option value="eu-west-1">eu-west-1</mat-option>
+        <mat-option value="us-east-1">us-east-1</mat-option>
+        <mat-option value="ap-southeast-1">ap-southeast-1</mat-option>
+      </mat-select>
+
+    </mat-form-field>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>topicName</mat-label>
+      <input matInput type="text" [(ngModel)]="subscribeTopicRequest.topicName">
+    </mat-form-field>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>protocol</mat-label>
+      <mat-select [(ngModel)]="subscribeTopicRequest.protocol">
+        <mat-option value="EMAIL">EMAIL</mat-option>
+        <mat-option value="SQS">SQS</mat-option>
+      </mat-select>
+
+    </mat-form-field>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>endpoint</mat-label>
+      <input matInput type="text" [(ngModel)]="subscribeTopicRequest.endpoint">
+    </mat-form-field>
+    <button (click)="subscribe(subscribeTopicRequest)" [disabled]="freezeButtons|async" mat-button>subscribe</button>
+  </mat-card>
+  <mat-card>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>subscriptionArn</mat-label>
+      <input matInput type="text" [(ngModel)]="unsubscribeTopicRequest.subscriptionArn">
+    </mat-form-field>
+
+
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>region</mat-label>
+
+      <mat-select [(ngModel)]="unsubscribeTopicRequest.region">
+        <mat-option value="eu-west-1">eu-west-1</mat-option>
+        <mat-option value="us-east-1">us-east-1</mat-option>
+        <mat-option value="ap-southeast-1">ap-southeast-1</mat-option>
+      </mat-select>
+
+    </mat-form-field>
+
+
+
+    <button (click)="unsubscribe(unsubscribeTopicRequest)" [disabled]="freezeButtons|async"
+      mat-button>unsubscribe</button>
+  </mat-card>
+  <mat-card>
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>topicName</mat-label>
+      <input matInput type="text" [(ngModel)]="topicNameFilter">
+    </mat-form-field>
+
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>region</mat-label>
+
+      <mat-select [(ngModel)]="regionFilter">
+        <mat-option value="eu-west-1">eu-west-1</mat-option>
+        <mat-option value="us-east-1">us-east-1</mat-option>
+        <mat-option value="ap-southeast-1">ap-southeast-1</mat-option>
+      </mat-select>
+
+    </mat-form-field>
+
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>protocol</mat-label>
+      <mat-select [(ngModel)]="protocolFilter">
+        <mat-option value="EMAIL">EMAIL</mat-option>
+        <mat-option value="SQS">SQS</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="example-form-field" appearance="fill">
+      <mat-label>endpoint</mat-label>
+      <input matInput type="text" [(ngModel)]="endpointFilter">
+    </mat-form-field>
+    <button (click)="load(topicNameFilter, regionFilter, protocolFilter, endpointFilter)"
+      [disabled]="freezeButtons|async" mat-button>load subscriptions</button>
+    <div *ngFor="let subscription of listSubscriptionResult?.subscriptions">
+      <p>{{subscription.subscriptionArn}}</p>
+      <p>{{subscription.topicArn}}</p>
+      <p>{{subscription.endpoint}}</p>
+      <p>{{subscription.protocol}}</p>
+
+    </div>
+
+  </mat-card>
+</div>

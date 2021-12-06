@@ -18,6 +18,8 @@ public class ListSubscriptionResult {
         private String topicArn;
         private String endpoint;
         private Protocol protocol;
+        private String region;
+        private String topicName;
     }
 
 }
