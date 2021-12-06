@@ -11,6 +11,6 @@ import java.nio.file.Path;
 @ConfigurationProperties("user-configuration")
 public class UserConfigProperties {
 
-    private Path location;
+    private String location;
 
 }
