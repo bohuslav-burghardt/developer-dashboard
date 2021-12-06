@@ -1,4 +1,4 @@
-package com.hackathon.developerdashboard.core.configuration;
+package com.hackathon.developerdashboard.core.configuration.service;
 
 public class ConfigurationLoadingException extends RuntimeException {
 

@@ -1,8 +1,8 @@
-package com.hackathon.developerdashboard.core.configuration;
+package com.hackathon.developerdashboard.core.configuration.service;
 
 import com.google.gson.Gson;
 import com.hackathon.developerdashboard.configuration.UserConfigProperties;
-import com.hackathon.developerdashboard.core.domain.UserConfiguration;
+import com.hackathon.developerdashboard.core.configuration.domain.UserConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

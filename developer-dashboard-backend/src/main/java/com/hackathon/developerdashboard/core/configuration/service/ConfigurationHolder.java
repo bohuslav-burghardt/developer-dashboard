@@ -1,6 +1,6 @@
-package com.hackathon.developerdashboard.core.configuration;
+package com.hackathon.developerdashboard.core.configuration.service;
 
-import com.hackathon.developerdashboard.core.domain.UserConfiguration;
+import com.hackathon.developerdashboard.core.configuration.domain.UserConfiguration;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 

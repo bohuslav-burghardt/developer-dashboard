@@ -1,4 +1,4 @@
-package com.hackathon.developerdashboard.core.domain;
+package com.hackathon.developerdashboard.core.configuration.domain;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
