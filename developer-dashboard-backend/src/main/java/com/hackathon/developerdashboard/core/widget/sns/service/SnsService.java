@@ -10,6 +10,7 @@ import com.hackathon.developerdashboard.core.AwsUtils;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicRequest;
 import com.hackathon.developerdashboard.core.widget.sns.domain.UnsubscribeTopicRequest;
+import com.hackathon.developerdashboard.core.widget.sns.domain.UnsubscribeTopicResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
