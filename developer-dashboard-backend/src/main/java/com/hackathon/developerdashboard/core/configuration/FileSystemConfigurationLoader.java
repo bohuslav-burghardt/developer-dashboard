@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.hackathon.developerdashboard.configuration.UserConfigProperties;
 import com.hackathon.developerdashboard.core.domain.UserConfiguration;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FileSystemConfigurationLoader implements ConfigurationLoader {
@@ -24,6 +26,9 @@ public class FileSystemConfigurationLoader implements ConfigurationLoader {
     @Override
     public UserConfiguration loadConfiguration() {
         String location = userConfigProperties.getLocation();
+        
+        log.info("loading user config from <{}>", location);
+        
         try {
             return doLoadConfig(location);
         } catch (IOException e) {
