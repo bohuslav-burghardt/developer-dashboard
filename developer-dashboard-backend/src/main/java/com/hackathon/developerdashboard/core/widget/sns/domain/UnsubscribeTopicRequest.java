@@ -12,10 +12,6 @@ public class UnsubscribeTopicRequest {
 
     private String region;
     @NotBlank
-    private String topicName;
-    @NotNull
-    private Protocol protocol;
-    @NotBlank
-    private String endpoint;
+    private String subscriptionArn;
 
 }
