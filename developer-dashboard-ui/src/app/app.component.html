@@ -1,0 +1,19 @@
+<p>
+  <mat-toolbar color="primary">
+  <span  [routerLink]="['']" routerLinkActive="active-route" [routerLinkActiveOptions]="{exact: true}">My App</span>
+  <button [routerLink]="['c1']"  routerLinkActive="active-route" mat-icon-button>
+    <mat-icon>dashboard</mat-icon>
+  </button>
+  <button [routerLink]="['c2']" routerLinkActive="active-route" mat-icon-button >
+   <mat-icon>settings</mat-icon>
+ </button>
+</mat-toolbar>
+</p>
+
+
+<a routerLink="/">home</a>
+<a routerLink="/c1">c1</a>
+<a routerLink="/c2">c2</a>
+<div id='router-outlet-container'>
+  <router-outlet></router-outlet>
+</div>
