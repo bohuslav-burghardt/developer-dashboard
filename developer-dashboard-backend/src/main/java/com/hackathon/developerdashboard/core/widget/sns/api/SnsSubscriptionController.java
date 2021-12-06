@@ -39,8 +39,8 @@ public class SnsSubscriptionController {
     }
 
     @DeleteMapping("/api/widgets/sns-subscription")
-    public UnsubscribeTopicResult unsubscribe(@RequestBody @Valid UnsubscribeTopicRequest request) {
-        return snsService.unsubscribe(request);
+    public void unsubscribe(@RequestBody @Valid UnsubscribeTopicRequest request) {
+        snsService.unsubscribe(request);
     }
 
 }

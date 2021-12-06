@@ -7,6 +7,7 @@ import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sns.model.Subscription;
 import com.amazonaws.services.sns.model.Topic;
+import com.amazonaws.services.sns.model.UnsubscribeResult;
 import com.hackathon.developerdashboard.core.AwsUtils;
 import com.hackathon.developerdashboard.core.widget.sns.domain.ListSubscriptionResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.Protocol;
@@ -34,20 +35,7 @@ public class SnsService {
     public SubscribeTopicResult subscribe(SubscribeTopicRequest request) {
         AmazonSNS amazonSNS = AwsUtils.createSnsClient(request.getRegion());
 
-        ListTopicsResult listTopicsResult = amazonSNS.listTopics();
-
-        List<Topic> topics = listTopicsResult.getTopics().stream().filter(topic -> {
-            return topic.getTopicArn().endsWith("-" + request.getTopicName());
-        }).collect(Collectors.toList());
-
-        if (topics.isEmpty()) {
-            throw noTopicFound(request.getTopicName());
-        }
-        if (topics.size() > 1) {
-            throw tooManyTopics(topics);
-        }
-
-        String topicArn = topics.get(0).getTopicArn();
+        String topicArn = getTopicByName(amazonSNS, request.getTopicName()).getTopicArn();
 
         Set<String> existingSubscriptionArns = listSubscriptionsWithPaging(amazonSNS, topicArn)
                 .stream()
@@ -82,27 +70,14 @@ public class SnsService {
         return result;
     }
 
-    public UnsubscribeTopicResult unsubscribe(UnsubscribeTopicRequest request) {
-        return null; // TODO
+    public void unsubscribe(UnsubscribeTopicRequest request) {
+        AmazonSNS amazonSNS = AwsUtils.createSnsClient(request.getRegion());
+        amazonSNS.unsubscribe(request.getSubscriptionArn());
     }
 
     public ListSubscriptionResult listSubscriptions(String region, String topicName, Protocol protocol, String endpoint) {
         AmazonSNS amazonSNS = AwsUtils.createSnsClient(region);
-
-        ListTopicsResult listTopicsResult = amazonSNS.listTopics();
-
-        List<Topic> topics = listTopicsResult.getTopics().stream().filter(topic -> {
-            return topic.getTopicArn().endsWith("-" + topicName);
-        }).collect(Collectors.toList());
-
-        if (topics.isEmpty()) {
-            throw noTopicFound(topicName);
-        }
-        if (topics.size() > 1) {
-            throw tooManyTopics(topics);
-        }
-
-        String topicArn = topics.get(0).getTopicArn();
+        String topicArn = getTopicByName(amazonSNS, topicName).getTopicArn();
 
         List<ListSubscriptionResult.Subscription> subscriptions = listSubscriptionsWithPaging(amazonSNS, topicArn)
                 .stream()
@@ -128,6 +103,24 @@ public class SnsService {
         ListSubscriptionResult result = new ListSubscriptionResult();
         result.setSubscriptions(subscriptions);
         return result;
+    }
+
+    //~ Util functions
+
+    private Topic getTopicByName(AmazonSNS sns, String topicName) {
+        ListTopicsResult listTopicsResult = sns.listTopics();
+
+        List<Topic> topics = listTopicsResult.getTopics().stream().filter(topic -> {
+            return topic.getTopicArn().endsWith("-" + topicName);
+        }).collect(Collectors.toList());
+
+        if (topics.isEmpty()) {
+            throw noTopicFound(topicName);
+        }
+        if (topics.size() > 1) {
+            throw tooManyTopics(topics);
+        }
+        return topics.get(0);
     }
 
     private List<Subscription> listSubscriptionsWithPaging(AmazonSNS sns, String topicArn) {
