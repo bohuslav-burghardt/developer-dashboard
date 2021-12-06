@@ -5,6 +5,7 @@ import com.hackathon.developerdashboard.configuration.UserConfigProperties;
 import com.hackathon.developerdashboard.core.domain.UserConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "user-configuration.location")
 public class FileSystemConfigurationLoader implements ConfigurationLoader {
 
     private final Gson gson;

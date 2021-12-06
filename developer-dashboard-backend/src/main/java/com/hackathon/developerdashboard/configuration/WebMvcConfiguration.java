@@ -1,4 +1,4 @@
-package com.hackathon.developerdashboard.core.configuration;
+package com.hackathon.developerdashboard.configuration;
 
 
 import org.springframework.boot.web.server.ErrorPage;

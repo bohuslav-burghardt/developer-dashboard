@@ -10,5 +10,4 @@ public class DeveloperDashboardApplication {
 		SpringApplication.run(DeveloperDashboardApplication.class, args);
 	}
 
-
 }
