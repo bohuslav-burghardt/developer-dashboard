@@ -11,12 +11,11 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class FileSystemUserConfigurationLoader implements UserConfigurationLoader {
+public class FileSystemConfigurationLoader implements ConfigurationLoader {
 
     private final Gson gson;
     private final ResourceLoader resourceLoader;
@@ -24,16 +23,16 @@ public class FileSystemUserConfigurationLoader implements UserConfigurationLoade
 
     @Override
     public UserConfiguration loadConfiguration() {
+        String location = userConfigProperties.getLocation();
         try {
-            return doLoadConfig(userConfigProperties.getLocation());
+            return doLoadConfig(location);
         } catch (IOException e) {
-            // TODO better error handling
-            throw new IllegalArgumentException("Failed to load configuration " + userConfigProperties.getLocation());
+            throw new ConfigurationLoadingException("Failed to load configuration " + location, e);
         }
     }
 
-    private UserConfiguration doLoadConfig(Path location) throws IOException {
-        Resource resource = resourceLoader.getResource(location.toString());
+    private UserConfiguration doLoadConfig(String location) throws IOException {
+        Resource resource = resourceLoader.getResource(location);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
             String content = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             return gson.fromJson(content, UserConfiguration.class);
