@@ -1,6 +1,7 @@
 package com.hackathon.developerdashboard.core.widget.sns.service;
 
 import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.model.InvalidParameterException;
 import com.amazonaws.services.sns.model.ListSubscriptionsByTopicResult;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.SubscribeRequest;
@@ -14,8 +15,10 @@ import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicReq
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
 import com.hackathon.developerdashboard.core.widget.sns.domain.UnsubscribeTopicRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +69,11 @@ public class SnsService {
 
     public void unsubscribe(UnsubscribeTopicRequest request) {
         AmazonSNS amazonSNS = AwsUtils.createSnsClient(request.getRegion());
-        amazonSNS.unsubscribe(request.getSubscriptionArn());
+        try {
+            amazonSNS.unsubscribe(request.getSubscriptionArn());
+        }catch(InvalidParameterException ex ){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "InvalidParameterException, with message<"+ex.getMessage()+"> is your subscriptionArn still pending? Please accept it in your email application and then delete it here.", ex);
+        }
     }
 
     public ListSubscriptionResult listSubscriptions(String region, String topicName, Protocol protocol, String endpoint) {

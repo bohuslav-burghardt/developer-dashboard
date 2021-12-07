@@ -2,8 +2,21 @@ td {
   font-size: 11px;
 }
 .subscriptionArn {
-  font-size: 9px;
+  font-size: 6px;
 }
 #table {
   width: 100%;
+}
+mat-card {
+  margin-bottom: 15px;
+}
+mat-form-field {
+  margin-right: 5px;
+}
+
+.red {
+  color: red;
+}
+.green {
+  color: green;
 }

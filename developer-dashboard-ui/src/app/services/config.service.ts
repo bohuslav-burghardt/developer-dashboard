@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { UserConfiguration } from '../data/UserConfiguration';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService implements OnDestroy {
-  public userConfiguration = new BehaviorSubject<UserConfiguration | null>(null);
+  public userConfiguration = new Subject<UserConfiguration>()
   private destroyed = false
   constructor(private http: HttpClient) {
     console.log("Starting ConfigService")
