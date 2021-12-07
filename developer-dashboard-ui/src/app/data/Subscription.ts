@@ -3,4 +3,6 @@ export class Subscription {
   topicArn = ""
   endpoint = ""
   protocol = ""
+  region = ""
+  topicName = ""
 }

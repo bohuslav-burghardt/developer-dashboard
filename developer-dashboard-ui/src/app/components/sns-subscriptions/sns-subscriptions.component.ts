@@ -7,6 +7,7 @@ import { SubscribeTopicResult } from 'src/app/data/SubscribeTopicResult';
 import { Subscription } from 'src/app/data/Subscription';
 import { UnsubscribeTopicRequest } from 'src/app/data/UnsubscribeTopicRequest';
 import { UnsubscribeTopicResult } from 'src/app/data/UnsubscribeTopicResult';
+import { ConfigService } from 'src/app/services/config.service';
 import { SnsSubscriptionService } from 'src/app/services/sns-subscription.service';
 
 @Component({
@@ -17,19 +18,20 @@ import { SnsSubscriptionService } from 'src/app/services/sns-subscription.servic
 export class SnsSubscriptionsComponent implements OnInit {
   freezeButtons = new BehaviorSubject(false);
 
-  topicNameFilter = ""
+  topicNameFilter = "jumbo-client-facade"
   regionFilter = "eu-west-1"
   protocolFilter = "EMAIL"
-  endpointFilter = ""
+  endpointFilter = "alexander.satek@jumio.com"
 
-  listSubscriptionResult: ListSubscriptionResult | null = null
+  listSubscriptionResult: ListSubscriptionResult = new ListSubscriptionResult()
   subscribeTopicResult: SubscribeTopicResult | null = null
   unsubscribeTopicResult: UnsubscribeTopicResult | null = null
 
   subscribeTopicRequest = new SubscribeTopicRequest()
   unsubscribeTopicRequest = new UnsubscribeTopicRequest()
+  displayedColumns: string[] = ['region', 'subscriptionArn', 'position', 'endpoint', 'protocol', 'unsubscribe'];
 
-  constructor(public subscriptionService: SnsSubscriptionService) {
+  constructor(public subscriptionService: SnsSubscriptionService, public configService: ConfigService) {
 
   }
 
@@ -71,6 +73,7 @@ export class SnsSubscriptionsComponent implements OnInit {
 
   public unsubscribe(request: UnsubscribeTopicRequest) {
     this.freezeButtons.next(true)
+
     this.subscriptionService
       .unsubscribe(request)
       .subscribe({
@@ -80,6 +83,7 @@ export class SnsSubscriptionsComponent implements OnInit {
         }, complete: () => {
         }
       }).add(() => {
+        this.load(this.topicNameFilter, this.regionFilter, this.protocolFilter, this.endpointFilter)
         this.freezeButtons.next(false)
       })
   }

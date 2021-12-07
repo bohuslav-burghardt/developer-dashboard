@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 @Data
-@Accessors(fluent = true)
+@Accessors(chain = true)
 public class UserConfiguration {
 
     private String defaultEmail;
