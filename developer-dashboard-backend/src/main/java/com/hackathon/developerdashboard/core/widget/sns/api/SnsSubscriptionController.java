@@ -1,6 +1,7 @@
 package com.hackathon.developerdashboard.core.widget.sns.api;
 
 import com.hackathon.developerdashboard.core.widget.sns.domain.ListSubscriptionResult;
+import com.hackathon.developerdashboard.core.widget.sns.domain.Message;
 import com.hackathon.developerdashboard.core.widget.sns.domain.Protocol;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicRequest;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
@@ -10,12 +11,14 @@ import com.hackathon.developerdashboard.core.widget.sns.service.SnsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +44,11 @@ public class SnsSubscriptionController {
     @DeleteMapping("/api/widgets/sns-subscription")
     public void unsubscribe(@RequestBody @Valid UnsubscribeTopicRequest request) {
         snsService.unsubscribe(request);
+    }
+
+    @GetMapping("/api/widgets/sns-subscription/{endpointArn}/messages")
+    public List<Message> getMessages(@PathVariable String endpointArn) {
+        return snsService.getMessages(endpointArn);
     }
 
 }
