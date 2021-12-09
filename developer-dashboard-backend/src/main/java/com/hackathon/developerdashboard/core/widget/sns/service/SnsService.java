@@ -1,6 +1,7 @@
 package com.hackathon.developerdashboard.core.widget.sns.service;
 
 import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.model.GetSubscriptionAttributesResult;
 import com.amazonaws.services.sns.model.InvalidParameterException;
 import com.amazonaws.services.sns.model.ListSubscriptionsByTopicResult;
 import com.amazonaws.services.sns.model.ListTopicsResult;
@@ -8,8 +9,13 @@ import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sns.model.Subscription;
 import com.amazonaws.services.sns.model.Topic;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.hackathon.developerdashboard.core.AwsUtils;
 import com.hackathon.developerdashboard.core.widget.sns.domain.ListSubscriptionResult;
+import com.hackathon.developerdashboard.core.widget.sns.domain.Message;
 import com.hackathon.developerdashboard.core.widget.sns.domain.Protocol;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicRequest;
 import com.hackathon.developerdashboard.core.widget.sns.domain.SubscribeTopicResult;
@@ -101,6 +107,21 @@ public class SnsService {
                 .collect(Collectors.toList());
 
         return new ListSubscriptionResult().setSubscriptions(subscriptions);
+    }
+
+    public List<Message> getMessages(String endpointArn) {
+        AmazonSQS sqsClient = AwsUtils.createSqsClient(AwsUtils.getRegionFromArn(endpointArn));
+        String queueName = AwsUtils.getQueueNameFromArn(endpointArn);
+
+        String queueUrl = sqsClient.getQueueUrl(queueName).getQueueUrl();
+        ReceiveMessageResult receiveMessageResult = sqsClient.receiveMessage(queueUrl);
+
+        List<Message> messages = new ArrayList<>();
+        receiveMessageResult.getMessages().forEach(message -> {
+            sqsClient.deleteMessage(queueUrl, message.getReceiptHandle());
+            messages.add(new Message().setBody(message.getBody()).setMessageId(message.getMessageId()));
+        });
+        return messages;
     }
 
     //~ Util functions

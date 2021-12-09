@@ -15,7 +15,6 @@ public class SubscribeTopicRequest {
     private String topicName;
     @NotNull
     private Protocol protocol;
-    @NotBlank
     private String endpoint;
 
 }
