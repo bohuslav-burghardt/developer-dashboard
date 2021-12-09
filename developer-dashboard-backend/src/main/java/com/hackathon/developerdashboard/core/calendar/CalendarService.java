@@ -21,7 +21,6 @@ import com.google.api.services.calendar.model.Event;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,19 +28,23 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.hackathon.developerdashboard.core.calendar.AuthCheckResult.AuthCheckState.AUTH_REQUIRED;
+import static com.hackathon.developerdashboard.core.calendar.AuthCheckResult.AuthCheckState.OK;
+
 @Service
 public class CalendarService {
     private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-
+    private static final String userId = "somethingFresh2";
+    private static final String redirectUri = "http://localhost:4200/api/ro-calender/callback";
     private static final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR, CalendarScopes.CALENDAR_READONLY);
     // private static final String CREDENTIALS_FILE_PATH = "/calendarClientSecret.json";
 
     private String roEventCalenarId;
 
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        String userId = "myUserId";
+
         // Load client secrets.
         InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
         if (in == null) {
@@ -90,11 +93,6 @@ public class CalendarService {
                 .build();
     }
 
-    @PostConstruct
-    public void postConstruct() throws Exception {
-
-    }
-
     public List<Event> getEvents() throws Exception {
         Calendar calendarClient = getCalendarClient();
 
@@ -125,6 +123,52 @@ public class CalendarService {
         Event event = calendarClient.events().get(roEventCalenarId, eventId).execute();
         event.setSummary(description);
         Event executionResult = calendarClient.events().update(roEventCalenarId, eventId, event).execute();
-        executionResult.toPrettyString();
+    }
+
+    public AuthCheckResult checkCalendarAuth() throws Exception {
+        InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
+        if (in == null) {
+            throw new FileNotFoundException("calendarClientSecret.jsons not found");
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
+                .Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+
+        Credential credential = flow.loadCredential(userId);
+        if (credential != null
+                && (credential.getRefreshToken() != null
+                || credential.getExpiresInSeconds() == null
+                || credential.getExpiresInSeconds() > 60)) {
+            return new AuthCheckResult().setAuthCheckState(OK);
+        }
+
+
+        AuthorizationCodeRequestUrl authorizationUrl =
+                flow.newAuthorizationUrl().setRedirectUri(redirectUri);
+        String url = authorizationUrl.build();
+
+        return new AuthCheckResult().setAuthCheckState(AUTH_REQUIRED).setAuthUrl(url);
+    }
+
+    public void receiveCallback(String code) throws Exception {
+        InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
+
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
+                .Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectUri).execute();
+        flow.createAndStoreCredential(response, userId);
     }
 }

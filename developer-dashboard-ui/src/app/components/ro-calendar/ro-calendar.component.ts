@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { AuthCheckResult } from 'src/app/data/AuthCheckResult';
 import { CalendarEvent } from 'src/app/data/CalendarEvent';
 import { CalendarEventListResponse } from 'src/app/data/CalendarEventListResponse';
 import { UpdateEventRequest } from 'src/app/data/UpdateEventRequest';
@@ -16,7 +17,9 @@ export class RoCalendarComponent implements OnInit {
   constructor(private httpClient: HttpClient) { }
 
   ngOnInit(): void {
-    this.loadEvents()
+    this.checkAuth(() => {
+      this.loadEvents()
+    })
   }
 
   loadEvents() {
@@ -33,6 +36,21 @@ export class RoCalendarComponent implements OnInit {
       })
       .add(() => {
         this.working = false
+      })
+  }
+
+  checkAuth(authOk: Function) {
+    this.httpClient.get<AuthCheckResult>(`api/ro-calender:check-auth`)
+      .subscribe({
+        next: rsp => {
+          if (rsp.authCheckState === "OK") {
+            console.log("auth check was ok")
+            authOk()
+          } else if (rsp.authCheckState === "AUTH_REQUIRED") {
+            console.log("auth check was not ok")
+            window.location.href = rsp.authUrl
+          }
+        }
       })
   }
 
