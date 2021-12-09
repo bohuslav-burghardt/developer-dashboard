@@ -71,8 +71,8 @@ public class SnsService {
         AmazonSNS amazonSNS = AwsUtils.createSnsClient(request.getRegion());
         try {
             amazonSNS.unsubscribe(request.getSubscriptionArn());
-        }catch(InvalidParameterException ex ){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "InvalidParameterException, with message<"+ex.getMessage()+"> is your subscriptionArn still pending? Please accept it in your email application and then delete it here.", ex);
+        } catch (InvalidParameterException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "InvalidParameterException, with message<" + ex.getMessage() + ">\nis your subscriptionArn still pending? Please accept it in your email application and then delete it here.", ex);
         }
     }
 

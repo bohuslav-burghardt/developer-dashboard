@@ -12,6 +12,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { SnsSubscriptionsComponent } from './components/sns-subscriptions/sns-subscriptions.component';
 import { SnsSubscriptionComponent } from './components/sns-subscription/sns-subscription.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LinksComponent } from './components/links/links.component';
+import { RoCalendarComponent } from './components/ro-calendar/ro-calendar.component';
+import { SaneDatePipe } from './pipes/sane-date.pipe';
+import { SaneDateTimePipe } from './pipes/sane-date-time.pipe';
+import { AllowHtmlPipe } from './pipes/allow-html.pipe';
 
 @NgModule({
   declarations: [
@@ -20,7 +25,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     C2Component,
     HomeComponent,
     SnsSubscriptionsComponent,
-    SnsSubscriptionComponent
+    SnsSubscriptionComponent,
+    LinksComponent,
+    RoCalendarComponent,
+    SaneDatePipe,
+    SaneDateTimePipe,
+    AllowHtmlPipe
   ],
   imports: [
     BrowserModule,

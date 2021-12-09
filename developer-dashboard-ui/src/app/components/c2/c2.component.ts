@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ConfigService } from 'src/app/services/config.service';
 
 @Component({
   selector: 'app-c2',
@@ -7,9 +8,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class C2Component implements OnInit {
 
-  constructor() { }
+  configString = ""
+
+  constructor(public configService: ConfigService) {
+    configService.userConfiguration.subscribe(
+      {
+        next: rsp => {
+          this.configString = JSON.stringify(rsp, null, 4);
+        }
+      }
+    );
+    configService.forceLoading();
+  }
 
   ngOnInit(): void {
   }
+
 
 }

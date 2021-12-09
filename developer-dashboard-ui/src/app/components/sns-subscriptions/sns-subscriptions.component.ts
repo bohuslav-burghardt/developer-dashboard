@@ -31,20 +31,19 @@ export class SnsSubscriptionsComponent implements OnInit {
   unsubscribeTopicRequest = new UnsubscribeTopicRequest()
   displayedColumns: string[] = ['region', 'subscriptionArn', 'position', 'endpoint', 'protocol', 'unsubscribe'];
 
-  messageCreate = ""
+  messageCreate = "ㅤ"
   messageCreateError = false
-  messageLoad = ""
+  messageLoad = "ㅤ"
   messageLoadError = false
-  messageDelete = ""
+  messageDelete = "ㅤ"
   messageDeleteError = false
 
 
   constructor(public subscriptionService: SnsSubscriptionService, public configService: ConfigService) {
-
+    configService.doTimeoutForLoading(true);
   }
 
   ngOnInit(): void {
-    this.resetMessages()
     this.configService
       .userConfiguration
       .pipe(take(1))
@@ -54,17 +53,9 @@ export class SnsSubscriptionsComponent implements OnInit {
       })
   }
 
-  resetMessages() {
-    this.messageCreate = "ㅤ"
-    this.messageCreateError = false
+  public load(topicName: string, region: string, protocol: string, endpoint: string) {
     this.messageLoad = "ㅤ"
     this.messageLoadError = false
-    this.messageDelete = "ㅤ"
-    this.messageDeleteError = false
-  }
-
-  public load(topicName: string, region: string, protocol: string, endpoint: string) {
-    this.resetMessages()
     this.freezeButtons.next(true)
     this.subscriptionService
       .load(topicName, region, protocol, endpoint)
@@ -85,14 +76,15 @@ export class SnsSubscriptionsComponent implements OnInit {
   }
 
   public subscribe(request: SubscribeTopicRequest) {
-    this.resetMessages()
+    this.messageCreate = "ㅤ"
+    this.messageCreateError = false
     this.freezeButtons.next(true)
     this.subscriptionService
       .subscribe(request)
       .subscribe({
         next: rsp => {
           this.subscribeTopicResult = rsp
-          this.messageCreate = "Subscription was created!"
+          this.messageCreate = "Subscription was created (or already existed)!"
         }, error: err => {
           this.messageCreate = err?.error?.message
           this.messageCreateError = true
@@ -104,7 +96,8 @@ export class SnsSubscriptionsComponent implements OnInit {
   }
 
   public unsubscribe(request: UnsubscribeTopicRequest) {
-    this.resetMessages()
+    this.messageDelete = "ㅤ"
+    this.messageDeleteError = false
     this.freezeButtons.next(true)
 
     this.subscriptionService

@@ -38,7 +38,7 @@ public class ErrorHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorContainer> handle(ResponseStatusException ex) {
         log.error("ErrorHandler caught exception", ex);
-        return ResponseEntity.status(ex.getStatus()).body(new ErrorContainer(ex.getMessage()));
+        return ResponseEntity.status(ex.getStatus()).body(new ErrorContainer(ex.getReason()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

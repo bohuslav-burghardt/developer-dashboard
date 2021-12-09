@@ -18,7 +18,11 @@ export class ConfigService implements OnDestroy {
     this.destroyed = true
   }
 
-  doTimeoutForLoading() {
+  forceLoading() {
+    this.doTimeoutForLoading(true)
+  }
+
+  doTimeoutForLoading(onlyOnce = true) {
     if (this.destroyed) {
       console.log("doTimeoutForLoading called but ConfigService was destroyed, doTimeout will do nothing")
       return
@@ -34,9 +38,10 @@ export class ConfigService implements OnDestroy {
 
         }
       }).add(() => {
-        setTimeout(() => {
-          this.doTimeoutForLoading()
-        }, 10000)
+        if (!onlyOnce)
+          setTimeout(() => {
+            this.doTimeoutForLoading(false)
+          }, 10000)
       })
   }
 
