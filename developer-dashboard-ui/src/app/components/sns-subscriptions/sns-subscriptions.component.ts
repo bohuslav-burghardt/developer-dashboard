@@ -1,13 +1,15 @@
 import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, take } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BehaviorSubject, take, takeWhile } from 'rxjs';
 import { ListSubscriptionResult } from 'src/app/data/ListSubscriptionResult';
 import { SubscribeTopicRequest } from 'src/app/data/SubscribeTopicRequest';
 import { SubscribeTopicResult } from 'src/app/data/SubscribeTopicResult';
 import { Subscription } from 'src/app/data/Subscription';
 import { UnsubscribeTopicRequest } from 'src/app/data/UnsubscribeTopicRequest';
 import { UnsubscribeTopicResult } from 'src/app/data/UnsubscribeTopicResult';
+import { UserConfiguration } from 'src/app/data/UserConfiguration';
 import { ConfigService } from 'src/app/services/config.service';
+import { InfoAtCursorService } from 'src/app/services/info-at-cursor.service';
 import { SnsSubscriptionService } from 'src/app/services/sns-subscription.service';
 
 @Component({
@@ -15,10 +17,11 @@ import { SnsSubscriptionService } from 'src/app/services/sns-subscription.servic
   templateUrl: './sns-subscriptions.component.html',
   styleUrls: ['./sns-subscriptions.component.scss']
 })
-export class SnsSubscriptionsComponent implements OnInit {
+export class SnsSubscriptionsComponent implements OnInit, OnDestroy {
+  destroyed = false
   freezeButtons = new BehaviorSubject(false);
 
-  topicNameFilter = "jumbo-client-facade"
+  topicNameFilter = ""
   regionFilter = "eu-west-1"
   protocolFilter = "EMAIL"
   endpointFilter = ""
@@ -37,10 +40,16 @@ export class SnsSubscriptionsComponent implements OnInit {
   messageLoadError = false
   messageDelete = "ㅤ"
   messageDeleteError = false
+  messageSqsMagic = "ㅤ"
 
+  userconfig = new UserConfiguration()
 
-  constructor(public subscriptionService: SnsSubscriptionService, public configService: ConfigService) {
-    configService.doTimeoutForLoading(true);
+  constructor(public subscriptionService: SnsSubscriptionService, public configService: ConfigService,
+    public infoAtCursorService: InfoAtCursorService) {
+    configService.load()
+  }
+  ngOnDestroy(): void {
+    this.destroyed = true
   }
 
   ngOnInit(): void {
@@ -48,8 +57,16 @@ export class SnsSubscriptionsComponent implements OnInit {
       .userConfiguration
       .pipe(take(1))
       .subscribe(rsp => {
+        // set those defaults when this component is created
         this.endpointFilter = rsp.defaultEmail
         this.subscribeTopicRequest.endpoint = rsp.defaultEmail
+      })
+
+    this.configService
+      .userConfiguration
+      .pipe(takeWhile(() => !this.destroyed))
+      .subscribe(rsp => {
+        this.userconfig = rsp
       })
   }
 
@@ -76,6 +93,7 @@ export class SnsSubscriptionsComponent implements OnInit {
   }
 
   public subscribe(request: SubscribeTopicRequest) {
+    this.messageSqsMagic = "ㅤ"
     this.messageCreate = "ㅤ"
     this.messageCreateError = false
     this.freezeButtons.next(true)
@@ -85,6 +103,8 @@ export class SnsSubscriptionsComponent implements OnInit {
         next: rsp => {
           this.subscribeTopicResult = rsp
           this.messageCreate = "Subscription was created (or already existed)!"
+          if (request.protocol === "SQS")
+            this.messageSqsMagic = `You can start listening to your queue <a href="/listen-to-queue/${rsp.createdQueueArn}">here</a>! `
         }, error: err => {
           this.messageCreate = err?.error?.message
           this.messageCreateError = true
@@ -117,4 +137,14 @@ export class SnsSubscriptionsComponent implements OnInit {
       })
   }
 
+  changedDropDown(value: string) {
+    this.messageSqsMagic = "ㅤ"
+    this.messageCreate = "ㅤ"
+    this.messageCreateError = false
+    if (value === "EMAIL") {
+      this.subscribeTopicRequest.endpoint = this.userconfig?.defaultEmail
+    } else if (value === "SQS") {
+      this.subscribeTopicRequest.endpoint = this.userconfig?.aws?.userQueueArn
+    }
+  }
 }

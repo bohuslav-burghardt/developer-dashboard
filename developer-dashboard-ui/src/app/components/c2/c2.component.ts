@@ -20,19 +20,19 @@ export class C2Component implements OnInit {
 
   loadConfig() {
     this.working = true
-    this.configService.userConfiguration
+    this.configService
+      .userConfiguration
       .pipe(take(1))
       .subscribe(
         {
           next: rsp => {
-            console.log("HEELLL")
             this.configString = JSON.stringify(rsp, null, 4);
           }
         }
       ).add(() => {
         this.working = false
       });
-    this.configService.forceLoading();
+    this.configService.load();
   }
 
   ngOnInit(): void {

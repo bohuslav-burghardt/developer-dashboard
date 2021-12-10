@@ -1,3 +1,4 @@
+<div id="infoAtCursor" class="invisible">{{infoAtCursorService.text|async}}</div>
 <p>
   <mat-toolbar color="primary">
     <span [routerLink]="['']" routerLinkActive="active-route" [routerLinkActiveOptions]="{exact: true}">My App</span>
@@ -15,7 +16,6 @@
     </button>
   </mat-toolbar>
 </p>
-
 <div id='router-outlet-container'>
   <router-outlet></router-outlet>
 </div>

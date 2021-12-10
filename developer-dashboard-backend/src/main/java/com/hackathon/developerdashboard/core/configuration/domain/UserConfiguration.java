@@ -10,7 +10,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class UserConfiguration {
 
-    private String defaultEmail;
+    private String defaultEmail = "";
     private JiraConfig jira = new JiraConfig();
     private List<WidgetDefinition> widgets = new ArrayList<>();
     private AwsConfig aws;

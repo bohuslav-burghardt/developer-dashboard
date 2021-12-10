@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class JiraConfig {
 
-    private String personalToken;
+    private String personalToken = "";
 
 }

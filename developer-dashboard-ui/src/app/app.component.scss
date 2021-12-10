@@ -9,3 +9,24 @@ span {
 #router-outlet-container {
   padding: 10px;
 }
+
+#infoAtCursor {
+  position: absolute;
+  transition: opacity 1s;
+  opacity: 1;
+  pointer-events: none;
+  background-color: white;
+  -webkit-user-select: none; /* Chrome all / Safari all */
+  -moz-user-select: none; /* Firefox all */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none;
+  border-radius: 3px;
+  padding: 1px;
+  border: 1px solid gray;
+  z-index: 999999999;
+}
+
+.invisible {
+  opacity: 0 !important;
+  transition: opacity 1s !important;
+}

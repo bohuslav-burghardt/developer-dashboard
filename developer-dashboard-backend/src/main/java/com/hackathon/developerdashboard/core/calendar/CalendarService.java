@@ -36,7 +36,7 @@ public class CalendarService {
     private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String userId = "developer-dashboard-user-id-1";
+    private static final String userId = "developer-dashboard-user-id-3";
     private static final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR, CalendarScopes.CALENDAR_READONLY);
     // private static final String CREDENTIALS_FILE_PATH = "/calendarClientSecret.json";
 

@@ -17,6 +17,7 @@ import { RoCalendarComponent } from './components/ro-calendar/ro-calendar.compon
 import { SaneDatePipe } from './pipes/sane-date.pipe';
 import { SaneDateTimePipe } from './pipes/sane-date-time.pipe';
 import { AllowHtmlPipe } from './pipes/allow-html.pipe';
+import { ListenToQueueComponent } from './components/listen-to-queue/listen-to-queue.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { AllowHtmlPipe } from './pipes/allow-html.pipe';
     RoCalendarComponent,
     SaneDatePipe,
     SaneDateTimePipe,
-    AllowHtmlPipe
+    AllowHtmlPipe,
+    ListenToQueueComponent
   ],
   imports: [
     BrowserModule,

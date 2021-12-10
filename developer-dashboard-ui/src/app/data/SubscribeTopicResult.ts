@@ -1,6 +1,7 @@
 export class SubscribeTopicResult {
   region = ""
   topicArn = ""
-  subscriptionArns = new Array<string>()
+  subscriptionArns: string[] = []
   wasAlreadySubscribed = false
+  createdQueueArn = ""
 }

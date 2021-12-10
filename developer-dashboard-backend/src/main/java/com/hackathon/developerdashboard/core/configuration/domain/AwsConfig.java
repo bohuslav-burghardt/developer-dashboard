@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AwsConfig {
 
-    private String userQueueArn;
+    private String userQueueArn = "";
 
 }

@@ -1,20 +1,14 @@
 package com.hackathon.developerdashboard.core.widget.sns.service;
 
 import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.GetSubscriptionAttributesResult;
 import com.amazonaws.services.sns.model.InvalidParameterException;
 import com.amazonaws.services.sns.model.ListSubscriptionsByTopicResult;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sns.model.Subscription;
-import com.amazonaws.services.sns.model.TagResourceRequest;
 import com.amazonaws.services.sns.model.Topic;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.CreateQueueResult;
-import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
-import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.hackathon.developerdashboard.core.AwsUtils;
@@ -65,6 +59,7 @@ public class SnsService {
                     .setRegion(request.getRegion())
                     .setTopicArn(topicArn)
                     .setSubscriptionArns(existingSubscriptionArns)
+                    .setCreatedQueueArn(request.getEndpoint())
                     .setWasAlreadySubscribed(true);
         }
 
@@ -86,6 +81,8 @@ public class SnsService {
 
         SubscribeResult subscribe = amazonSNS.subscribe(snsSubscribeRequest);
 
+        
+        
         return new SubscribeTopicResult()
                 .setRegion(request.getRegion())
                 .setTopicArn(topicArn)
@@ -135,7 +132,12 @@ public class SnsService {
         String queueName = AwsUtils.getQueueNameFromArn(endpointArn);
 
         String queueUrl = sqsClient.getQueueUrl(queueName).getQueueUrl();
-        ReceiveMessageResult receiveMessageResult = sqsClient.receiveMessage(queueUrl);
+
+        ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl)
+                .withMaxNumberOfMessages(10)
+                .withSdkClientExecutionTimeout(10000);
+        
+        ReceiveMessageResult receiveMessageResult = sqsClient.receiveMessage(receiveMessageRequest);
 
         List<Message> messages = new ArrayList<>();
         receiveMessageResult.getMessages().forEach(message -> {

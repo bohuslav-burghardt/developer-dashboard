@@ -1,0 +1,14 @@
+<p>Your messages:</p>
+<button (click)="clear()" color="warn" mat-stroked-button>clear</button>
+
+<table rules="none">
+  <tr>
+    <th>messageId</th>
+    <th>message</th>
+  </tr>
+
+  <tr *ngFor="let message of messages">
+    <td (click)="infoAtCursorService.copyToClipboard(message.messageId)">{{message.messageId}}</td>
+    <td (click)="infoAtCursorService.copyToClipboard(message.messageId)">{{message.body}}</td>
+  </tr>
+</table>

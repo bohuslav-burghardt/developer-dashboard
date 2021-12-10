@@ -21,11 +21,6 @@ public class ConfigurationController {
         return configurationService.getUserConfiguration();
     }
 
-    @PostMapping("/api/configuration/reload")
-    public void reloadConfiguration() {
-        configurationService.refreshConfiguration();
-    }
-
     @PostMapping("/api/configuration/update")
     public void update(@RequestBody UserConfiguration userConfiguration) throws Exception {
         configurationService.update(userConfiguration);

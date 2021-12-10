@@ -16,7 +16,7 @@
     </mat-form-field>
     <mat-form-field class="example-form-field" appearance="fill">
       <mat-label>protocol</mat-label>
-      <mat-select [(ngModel)]="subscribeTopicRequest.protocol">
+      <mat-select [(ngModel)]="subscribeTopicRequest.protocol" (valueChange)="changedDropDown($event)">
         <mat-option value="EMAIL">EMAIL</mat-option>
         <mat-option value="SQS">SQS</mat-option>
       </mat-select>
@@ -30,6 +30,8 @@
       color="primary">subscribe</button>
 
     <p [ngClass]="messageCreateError ? 'red' : 'green'">{{messageCreate}}</p>
+    <p [innerHTML]="messageSqsMagic | allowHtml"
+      *ngIf="subscribeTopicRequest.protocol === 'SQS' && !!messageSqsMagic && messageSqsMagic.length != 0"></p>
 
   </mat-card>
 
@@ -72,23 +74,28 @@
     <table id="table" mat-table [dataSource]="listSubscriptionResult.subscriptions" class="mat-elevation-z8">
       <ng-container matColumnDef="region">
         <th mat-header-cell *matHeaderCellDef>region</th>
-        <td mat-cell *matCellDef="let element"> {{element.region}} </td>
+        <td mat-cell *matCellDef="let element" (click)="infoAtCursorService.copyToClipboard(element.region)">
+          {{element.region}} </td>
       </ng-container>
       <ng-container matColumnDef="subscriptionArn">
         <th mat-header-cell *matHeaderCellDef>subscriptionArn</th>
-        <td mat-cell *matCellDef="let element" class="subscriptionArn"> {{element.subscriptionArn}} </td>
+        <td mat-cell *matCellDef="let element" class="subscriptionArn"
+          (click)="infoAtCursorService.copyToClipboard(element.subscriptionArn)"> {{element.subscriptionArn}} </td>
       </ng-container>
       <ng-container matColumnDef="position">
         <th mat-header-cell *matHeaderCellDef>topicArn</th>
-        <td mat-cell *matCellDef="let element" class="subscriptionArn"> {{element.topicArn}} </td>
+        <td mat-cell *matCellDef="let element" class="subscriptionArn"
+          (click)="infoAtCursorService.copyToClipboard(element.topicArn)"> {{element.topicArn}} </td>
       </ng-container>
       <ng-container matColumnDef="endpoint">
         <th mat-header-cell *matHeaderCellDef>endpoint</th>
-        <td mat-cell *matCellDef="let element"> {{element.endpoint}} </td>
+        <td mat-cell *matCellDef="let element" (click)="infoAtCursorService.copyToClipboard(element.endpoint)">
+          {{element.endpoint}} </td>
       </ng-container>
       <ng-container matColumnDef="protocol">
         <th mat-header-cell *matHeaderCellDef>protocol</th>
-        <td mat-cell *matCellDef="let element"> {{element.protocol}} </td>
+        <td mat-cell *matCellDef="let element" (click)="infoAtCursorService.copyToClipboard(element.protocol)">
+          {{element.protocol}} </td>
       </ng-container>
       <ng-container matColumnDef="unsubscribe">
         <th mat-header-cell *matHeaderCellDef>unsubscribe</th>
