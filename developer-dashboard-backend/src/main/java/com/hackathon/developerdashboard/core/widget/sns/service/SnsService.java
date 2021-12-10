@@ -68,14 +68,15 @@ public class SnsService {
                     .setWasAlreadySubscribed(true);
         }
 
-        String sqsArn = null;
+        String createdSqsArn = null;
         String endpoint = request.getEndpoint();
-        if (request.getProtocol() == Protocol.SQS) {
+
+        if (request.getProtocol() == Protocol.SQS && !StringUtils.hasText(request.getEndpoint())) {
             AmazonSQS amazonSQS = AwsUtils.createSqsClient(request.getRegion());
-            String queueUrl = amazonSQS.createQueue("dev-dashboard-" + UUID.randomUUID()).toString();
-            sqsArn = amazonSQS.getQueueAttributes(queueUrl,
+            String queueUrl = amazonSQS.createQueue("dev-dashboard-" + UUID.randomUUID()).getQueueUrl();
+            createdSqsArn = amazonSQS.getQueueAttributes(queueUrl,
                     Collections.singletonList(QueueArn.toString())).getAttributes().get(QueueArn.toString());
-            endpoint = sqsArn;
+            endpoint = createdSqsArn;
         }
 
         SubscribeRequest snsSubscribeRequest = new SubscribeRequest();
@@ -89,7 +90,7 @@ public class SnsService {
                 .setRegion(request.getRegion())
                 .setTopicArn(topicArn)
                 .setSubscriptionArns(Collections.singleton(subscribe.getSubscriptionArn()))
-                .setCreatedQueueArn(sqsArn)
+                .setCreatedQueueArn(createdSqsArn)
                 .setWasAlreadySubscribed(false);
     }
 
