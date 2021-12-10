@@ -34,7 +34,8 @@ public class FileSystemConfigurationLoader implements ConfigurationLoader {
         try {
             return doLoadConfig(location);
         } catch (IOException e) {
-            throw new ConfigurationLoadingException("Failed to load configuration " + location, e);
+            return new UserConfiguration();
+            //throw new ConfigurationLoadingException("Failed to load configuration " + location, e);
         }
     }
 

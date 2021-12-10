@@ -8,8 +8,8 @@ import { RoCalendarComponent } from './components/ro-calendar/ro-calendar.compon
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'c1', component: C1Component },
-  { path: 'c2', component: C2Component },
+  { path: 'sns', component: C1Component },
+  { path: 'settings', component: C2Component },
   { path: 'links', component: LinksComponent },
   { path: 'ro-calendar', component: RoCalendarComponent },
 ];

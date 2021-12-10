@@ -1,5 +1,6 @@
 package com.hackathon.developerdashboard.core.calendar;
 
+import com.hackathon.developerdashboard.core.configuration.service.ConfigurationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CalendarController {
     private final HttpServletRequest httpServletRequest;
     private final CalendarService calendarService;
+    private final ConfigurationService configurationService;
 
     @GetMapping("api/ro-calendar/ro-events")
     public EventListResponse get() throws Exception {
@@ -27,19 +29,20 @@ public class CalendarController {
             @PathVariable String eventId,
             @RequestBody UpdateEventRequest updateEventRequest
     ) throws Exception {
-         calendarService.reserve(eventId, updateEventRequest.getDescription());
+        calendarService.reserve(eventId, updateEventRequest.getDescription());
     }
-    
+
     @GetMapping("api/ro-calender:check-auth")
     public AuthCheckResult checkCalendarAuth() throws Exception {
         return calendarService.checkCalendarAuth();
     }
+
     @GetMapping("api/ro-calender/callback")
-    public RedirectView  receiveGoogleAuthCallback(RedirectAttributes attributes) throws Exception {
+    public RedirectView receiveGoogleAuthCallback(RedirectAttributes attributes) throws Exception {
         calendarService.receiveCallback(httpServletRequest.getParameter("code"));
 
         attributes.addFlashAttribute("flashAttribute", "redirectWithRedirectView");
-        attributes.addAttribute("attribute", "redirectWithRedirectView");
-        return new RedirectView("http://localhost:4200/ro-calendar");
+        //attributes.addAttribute("attribute", "redirectWithRedirectView");
+        return new RedirectView("http://localhost:" + configurationService.getPort() + "/ro-calendar");
     }
 }

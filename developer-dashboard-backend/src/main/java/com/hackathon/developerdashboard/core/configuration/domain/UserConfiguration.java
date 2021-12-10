@@ -3,6 +3,7 @@ package com.hackathon.developerdashboard.core.configuration.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -10,7 +11,7 @@ import java.util.List;
 public class UserConfiguration {
 
     private String defaultEmail;
-    private JiraConfig jira;
-    private List<WidgetDefinition> widgets;
+    private JiraConfig jira = new JiraConfig();
+    private List<WidgetDefinition> widgets = new ArrayList<>();
 
 }

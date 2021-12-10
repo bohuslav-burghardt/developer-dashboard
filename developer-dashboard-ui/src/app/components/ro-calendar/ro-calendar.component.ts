@@ -4,6 +4,7 @@ import { AuthCheckResult } from 'src/app/data/AuthCheckResult';
 import { CalendarEvent } from 'src/app/data/CalendarEvent';
 import { CalendarEventListResponse } from 'src/app/data/CalendarEventListResponse';
 import { UpdateEventRequest } from 'src/app/data/UpdateEventRequest';
+import { PortService } from 'src/app/services/port.service';
 
 @Component({
   selector: 'app-ro-calendar',
@@ -14,12 +15,16 @@ export class RoCalendarComponent implements OnInit {
 
   events: CalendarEvent[] = []
   working = false
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private portService: PortService) { }
 
   ngOnInit(): void {
-    this.checkAuth(() => {
-      this.loadEvents()
-    })
+    this.portService
+      .sendPortToServer()
+      .add(() => {
+        this.checkAuth(() => {
+          this.loadEvents()
+        })
+      })
   }
 
   loadEvents() {
@@ -56,12 +61,15 @@ export class RoCalendarComponent implements OnInit {
 
   unreserve(id: string) {
     this.working = true
+    this.portService.sendPortToServer()
     const updateEventRequest = new UpdateEventRequest()
     updateEventRequest.description = "Empty slot"
     this.updateEvent(id, updateEventRequest)
   }
   reserve(id: string) {
+
     this.working = true
+    this.portService.sendPortToServer()
     const updateEventRequest = new UpdateEventRequest()
     updateEventRequest.description = prompt("Please enter description for calendar event", "Empty slot") ?? "Empty slot";
     this.updateEvent(id, updateEventRequest)

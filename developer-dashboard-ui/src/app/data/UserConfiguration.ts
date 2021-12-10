@@ -1,4 +1,5 @@
-import { JiraConfig } from "./Jiraconfig"
+
+import { JiraConfig } from "./JiraConfig";
 import { WidgetDefinition } from "./WidgetDefinition"
 
 export class UserConfiguration {

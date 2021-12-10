@@ -18,11 +18,10 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.hackathon.developerdashboard.core.configuration.service.ConfigurationService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -33,31 +32,22 @@ import static com.hackathon.developerdashboard.core.calendar.AuthCheckResult.Aut
 
 @Service
 public class CalendarService {
+    private final ConfigurationService configurationService;
     private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String userId = "somethingFresh2";
-    private static final String redirectUri = "http://localhost:4200/api/ro-calender/callback";
+    private static final String userId = "developer-dashboard-user-id-1";
     private static final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR, CalendarScopes.CALENDAR_READONLY);
     // private static final String CREDENTIALS_FILE_PATH = "/calendarClientSecret.json";
 
     private String roEventCalenarId;
 
-    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+    public CalendarService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
-        // Load client secrets.
-        InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
-        if (in == null) {
-            throw new FileNotFoundException("calendarClientSecret.jsons not found");
-        }
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
-                .Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws Exception {
+        GoogleAuthorizationCodeFlow flow = createFlow();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(9092).build();
 
         Credential credential = flow.loadCredential(userId);
@@ -122,23 +112,11 @@ public class CalendarService {
         Calendar calendarClient = getCalendarClient();
         Event event = calendarClient.events().get(roEventCalenarId, eventId).execute();
         event.setSummary(description);
-        Event executionResult = calendarClient.events().update(roEventCalenarId, eventId, event).execute();
+        calendarClient.events().update(roEventCalenarId, eventId, event).execute();
     }
 
     public AuthCheckResult checkCalendarAuth() throws Exception {
-        InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
-        if (in == null) {
-            throw new FileNotFoundException("calendarClientSecret.jsons not found");
-        }
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
-                .Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
+        GoogleAuthorizationCodeFlow flow = createFlow();
 
         Credential credential = flow.loadCredential(userId);
         if (credential != null
@@ -148,27 +126,34 @@ public class CalendarService {
             return new AuthCheckResult().setAuthCheckState(OK);
         }
 
-
         AuthorizationCodeRequestUrl authorizationUrl =
-                flow.newAuthorizationUrl().setRedirectUri(redirectUri);
+                flow.newAuthorizationUrl().setRedirectUri(getRedirectUri());
         String url = authorizationUrl.build();
 
         return new AuthCheckResult().setAuthCheckState(AUTH_REQUIRED).setAuthUrl(url);
     }
 
     public void receiveCallback(String code) throws Exception {
+        GoogleAuthorizationCodeFlow flow = createFlow();
+        TokenResponse response = flow.newTokenRequest(code).setRedirectUri(getRedirectUri()).execute();
+        flow.createAndStoreCredential(response, userId);
+    }
+
+    private static GoogleAuthorizationCodeFlow createFlow() throws Exception {
         InputStream in = new ClassPathResource("calendarClientSecret.json").getInputStream();
 
         NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
+        return new GoogleAuthorizationCodeFlow
                 .Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-        TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectUri).execute();
-        flow.createAndStoreCredential(response, userId);
+    }
+
+    private String getRedirectUri() {
+        return "http://localhost:" + configurationService.getPort() + "/api/ro-calender/callback";
     }
 }
