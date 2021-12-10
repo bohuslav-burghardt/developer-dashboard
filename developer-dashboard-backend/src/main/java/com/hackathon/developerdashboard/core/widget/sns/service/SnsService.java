@@ -8,9 +8,13 @@ import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sns.model.Subscription;
+import com.amazonaws.services.sns.model.TagResourceRequest;
 import com.amazonaws.services.sns.model.Topic;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
+import com.amazonaws.services.sqs.model.QueueAttributeName;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.hackathon.developerdashboard.core.AwsUtils;
@@ -30,8 +34,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.amazonaws.services.sqs.model.QueueAttributeName.QueueArn;
 import static com.hackathon.developerdashboard.core.widget.sns.service.SnsSubscriptionException.noTopicFound;
 import static com.hackathon.developerdashboard.core.widget.sns.service.SnsSubscriptionException.tooManyTopics;
 
@@ -40,6 +46,9 @@ import static com.hackathon.developerdashboard.core.widget.sns.service.SnsSubscr
 public class SnsService {
 
     public SubscribeTopicResult subscribe(SubscribeTopicRequest request) {
+        if (request.getProtocol() == Protocol.EMAIL && !StringUtils.hasText(request.getEndpoint())) {
+            throw new IllegalArgumentException("Endpoint must be specified for EMAIL subscription.");
+        }
         AmazonSNS amazonSNS = AwsUtils.createSnsClient(request.getRegion());
 
         String topicArn = getTopicByName(amazonSNS, request.getTopicName()).getTopicArn();
@@ -59,8 +68,16 @@ public class SnsService {
                     .setWasAlreadySubscribed(true);
         }
 
+        String endpoint = request.getEndpoint();
+        if (request.getProtocol() == Protocol.SQS) {
+            AmazonSQS amazonSQS = AwsUtils.createSqsClient(request.getRegion());
+            String queueUrl = amazonSQS.createQueue("dev-dashboard-" + UUID.randomUUID()).toString();
+            endpoint = amazonSQS.getQueueAttributes(queueUrl,
+                    Collections.singletonList(QueueArn.toString())).getAttributes().get(QueueArn.toString());
+        }
+
         SubscribeRequest snsSubscribeRequest = new SubscribeRequest();
-        snsSubscribeRequest.setEndpoint(request.getEndpoint());
+        snsSubscribeRequest.setEndpoint(endpoint);
         snsSubscribeRequest.setProtocol(request.getProtocol().getAwsValue());
         snsSubscribeRequest.setTopicArn(topicArn);
 

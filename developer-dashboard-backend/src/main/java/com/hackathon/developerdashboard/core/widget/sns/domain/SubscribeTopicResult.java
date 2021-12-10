@@ -12,6 +12,7 @@ public class SubscribeTopicResult {
     private String region;
     private String topicArn;
     private Set<String> subscriptionArns;
+    private String createdQueueArn;
     private boolean wasAlreadySubscribed;
 
 }
