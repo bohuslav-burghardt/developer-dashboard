@@ -1,5 +1,0 @@
-<p>current config:</p>
-<textarea id="settings-textarea" [(ngModel)]="configString" [disabled]="working"></textarea>
-<p *ngIf="parsingError" style="color:red">Error parsing JSON, please fix your json and try again!</p>
-<button (click)="save()" [disabled]="working" mat-raised-button>save</button>
-<button (click)="loadConfig()" [disabled]="working" mat-raised-button>reload</button>

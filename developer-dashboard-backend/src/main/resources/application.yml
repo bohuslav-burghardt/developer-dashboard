@@ -1,2 +1,0 @@
-user-configuration:
-  location: file:${user.home}/.developer-dashboard/config.json
